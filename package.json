@@ -1,0 +1,26 @@
+{
+  "name": "haruhi-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/check-battle-drift.mjs && vite build",
+    "preview": "vite preview",
+    "start:server": "node server/server.js",
+    "test:server-bind": "node scripts/verify-server-bind-host.mjs",
+    "test:fluid-cover": "node scripts/verify-fluid-cover.mjs",
+    "test:fluid-reveal": "node scripts/verify-fluid-reveal.mjs",
+    "test:static-range": "node scripts/verify-static-range.mjs",
+    "test:deploy-script": "node scripts/verify-deploy-script.mjs",
+    "test:core": "node scripts/verify-core.mjs"
+  },
+  "dependencies": {
+    "three": "^0.185.1",
+    "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0",
+    "vite": "^8.0.14"
+  }
+}

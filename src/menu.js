@@ -1,0 +1,208 @@
+﻿// ═══════════════════════════════════════════════════════════════
+// 主菜单 / 标题画面（路由 /）
+// 左：标题 + 竖排菜单；底：动态星尘与 WebGL 视频封面背景。
+// 键盘 ↑↓ 选择、Enter 进入。出战编队不在此处选，进入对战时再挑。
+// ═══════════════════════════════════════════════════════════════
+
+import { getFaction } from "./profile.js";
+import { startStarfield } from "./starfield.js";
+import { isMobile } from "./mobile.js";
+import { bindLanguageSelector, languageSelectorHTML, t } from "./i18n.js";
+
+const ITEMS = [
+  { href: "/play", no: "I", label: "单人实战", sub: "挑选舰队，迎击 AI 舰群" },
+  { href: "/online", no: "II", label: "在线对战", sub: "大厅匹配，与真人同步交战" },
+  { href: "/profile", no: "III", label: "指挥官档案", sub: "呼号与阵营" },
+  { href: "/guide", no: "IV", label: "玩法说明", sub: "操作与机制速览" },
+  { href: "/credits", no: "V", label: "制作人员", sub: "画师 · 设计开发 · 出品" },
+];
+
+const GITHUB_URL = "https://github.com/Haruhi-Labs/TDOS";
+const GROUP_URL = "https://qm.qq.com/q/zg5Bl5Ugwg";
+const VERSION_LABEL = "公测版 v0.1";
+const FLUID_COVER_ASSET_BASE = `${import.meta.env.BASE_URL}assets/fluid-reveal/`;
+const FLUID_COVER_MAIN_IMAGE_URL = `${FLUID_COVER_ASSET_BASE}A1.jpeg`;
+const FLUID_COVER_IMAGE_URL = `${FLUID_COVER_ASSET_BASE}B.png`;
+const FLUID_COVER_OPTIONS = {
+  maxFps: 24,
+  simulationResolution: 112,
+  particleCount: 72,
+  cursorRing: true,
+  pointerRadius: 0.91,
+  splatForce: 0.91,
+  clickRadiusMultiplier: 1.08,
+  clickSplatForce: 2.05,
+  velocityDissipation: 0.986,
+  densityDissipation: 0.95,
+  curlStrength: 0.34,
+  distortionStrength: 0.032,
+  revealStrength: 0.88,
+  backgroundDarkness: 0.58,
+  particleOpacity: 0.46,
+  pressureIterations: 3,
+  dprCap: 1,
+};
+
+// 首页 GitHub 链接(内嵌 Octocat 标记,fill 跟随 currentColor 以适配主题色)
+function githubLinkHTML() {
+  return `<a class="ts-github" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer" aria-label="${t("GitHub 源码仓库")}" title="GitHub · TDOS">` +
+    `<svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>` +
+    `</a>`;
+}
+
+// 首页加群文字按钮(铜框小药丸,风格随主题)
+function groupLinkHTML() {
+  const label = t("加入交流群");
+  return `<a class="ts-group" href="${GROUP_URL}" target="_blank" rel="noopener noreferrer" aria-label="${t("加入游戏交流群")}" title="${t("加入游戏交流群")}">${label}</a>`;
+}
+
+// 右上角语言切换:地球图标 + 原生语言下拉(隐藏「语言」字样,图标表意),与左上角印章标题对称
+function languageCornerHTML() {
+  return `<div class="ts-lang-corner">` +
+    `<svg class="ts-globe" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg>` +
+    languageSelectorHTML("ts-language ts-language-corner") +
+    `</div>`;
+}
+
+function menuItemsHTML() {
+  return ITEMS.map(
+    (it, i) => `
+    <a class="ts-item" href="${it.href}" data-index="${i}">
+      <span class="ts-item-no">${it.no}</span>
+      <span class="ts-item-body">
+        <span class="ts-item-label">${t(it.label)}</span>
+        <span class="ts-item-sub">${t(it.sub)}</span>
+      </span>
+      <span class="ts-item-cue">▸</span>
+    </a>`,
+  ).join("");
+}
+
+// 移动端专属：纵向堆叠 —— 标题 / 大触控菜单行
+function mobileTemplate(faction) {
+  return `
+    <section class="ts-stage mmenu ts-faction-${faction}">
+      <canvas class="ts-bg" aria-hidden="true"></canvas>
+      ${languageCornerHTML()}
+      <div class="mmenu-shell">
+        <header class="mmenu-head">
+          <div class="ts-seal" role="img" aria-label="${t("SOS团")}"></div>
+          <h1 class="ts-title">${t("射手座之日")}</h1>
+        </header>
+        <nav class="ts-menu mmenu-list" aria-label="${t("主菜单")}">${menuItemsHTML()}</nav>
+        <footer class="mmenu-foot">
+          <span class="ts-foot-actions">${githubLinkHTML()}${groupLinkHTML()}</span>
+          <span class="ts-ver">${t(VERSION_LABEL)}</span>
+        </footer>
+      </div>
+    </section>
+  `;
+}
+
+function template(faction) {
+  const items = menuItemsHTML();
+
+  return `
+    <section class="ts-stage ts-faction-${faction}">
+      <canvas class="ts-bg" aria-hidden="true"></canvas>
+      <div class="ts-vignette" aria-hidden="true"></div>
+      ${languageCornerHTML()}
+
+      <div class="ts-content">
+        <header class="ts-head">
+          <div class="ts-seal" role="img" aria-label="${t("SOS团")}"></div>
+          <h1 class="ts-title">${t("射手座之日")}</h1>
+          <p class="ts-subtitle">The Day of Sagittarius</p>
+          <div class="ts-rule"></div>
+        </header>
+
+        <nav class="ts-menu" aria-label="${t("主菜单")}">
+          ${items}
+        </nav>
+
+        <footer class="ts-foot">
+          <span class="ts-foot-actions">${githubLinkHTML()}${groupLinkHTML()}</span>
+          <span class="ts-foot-info"><span class="ts-ver">${t(VERSION_LABEL)}</span><span class="ts-foot-dot">·</span><span class="ts-hint">${t("↑ ↓ 选择　Enter 进入")}</span></span>
+        </footer>
+      </div>
+    </section>
+  `;
+}
+
+export function mount(root, ctx) {
+  const faction = getFaction();
+  const mobile = isMobile();
+  root.innerHTML = (mobile ? mobileTemplate : template)(faction);
+  bindLanguageSelector(root);
+
+  const ac = new AbortController();
+  const { signal } = ac;
+
+  const stage = root.querySelector(".ts-stage");
+  const bg = root.querySelector(".ts-bg");
+  const starfieldAc = new AbortController();
+  startStarfield(bg, starfieldAc.signal);
+
+  let fluidCover = null;
+  let fluidCoverCancelled = false;
+  async function loadFluidCover() {
+    if (!stage) return;
+    try {
+      const { createFluidRevealBackground } = await import("./effects/fluid-reveal/FluidRevealBackground.js");
+      if (signal.aborted || fluidCoverCancelled) return;
+      fluidCover = createFluidRevealBackground(FLUID_COVER_OPTIONS);
+      stage.classList.add("ts-fluid-cover");
+      fluidCover.mount(stage);
+      fluidCover.setTextures(FLUID_COVER_MAIN_IMAGE_URL, FLUID_COVER_IMAGE_URL);
+      starfieldAc.abort();
+    } catch (error) {
+      stage.classList.remove("ts-fluid-cover");
+      fluidCover?.destroy();
+      fluidCover = null;
+      console.warn("Fluid cover unavailable; using starfield fallback.", error);
+    }
+  }
+  loadFluidCover();
+
+  const items = Array.from(root.querySelectorAll(".ts-item"));
+
+  // 键盘导航
+  function focusItem(idx) {
+    const n = items.length;
+    items[((idx % n) + n) % n].focus();
+  }
+  function currentIndex() {
+    return items.indexOf(document.activeElement);
+  }
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        focusItem((currentIndex() < 0 ? -1 : currentIndex()) + 1);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        focusItem((currentIndex() < 0 ? 0 : currentIndex()) - 1);
+      } else if (event.key === "Enter") {
+        const idx = currentIndex();
+        if (idx >= 0) {
+          event.preventDefault();
+          items[idx].click();
+        }
+      }
+    },
+    { signal },
+  );
+
+  // 入场后聚焦首项（仅当无键盘焦点环，避免突兀）
+  requestAnimationFrame(() => {
+    if (stage && document.activeElement === document.body) items[0]?.focus({ preventScroll: true });
+  });
+
+  return () => {
+    fluidCoverCancelled = true;
+    starfieldAc.abort();
+    fluidCover?.destroy();
+    ac.abort();
+  };
+}
