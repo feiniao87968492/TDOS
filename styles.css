@@ -753,6 +753,70 @@ input[type="range"]::-webkit-slider-thumb { background: var(--gilt); }
   letter-spacing: 0.02em;
 }
 
+.team-comm-panel {
+  flex: 0 0 auto;
+}
+.team-comm-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.team-comm-buttons button {
+  min-height: 32px;
+  padding-inline: 5px;
+  font-size: 0.76rem;
+}
+.team-comm-feed {
+  min-height: 78px;
+  max-height: 104px;
+  margin-top: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+.team-comm-row,
+.team-comm-empty {
+  min-height: 19px;
+  display: flex;
+  align-items: center;
+  padding: 3px 7px;
+  border: 1px solid #6c4a2855;
+  border-radius: 3px;
+  background: #160c0588;
+  color: var(--gilt-pale);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+.team-comm-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.team-comm-danger {
+  color: #ffb4a8;
+  border-color: #a2453480;
+}
+.mobile-team-comm-panel {
+  display: grid;
+  gap: 6px;
+}
+.mobile-team-comm-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.mobile-team-comm-buttons button {
+  min-height: 38px;
+  padding: 6px 4px;
+  font-size: 0.76rem;
+}
+.mobile-team-comm-feed {
+  min-height: 42px;
+  max-height: 58px;
+  margin-top: 0;
+  overflow: hidden;
+}
+
 /* ═══════════════════════════════════════════════════
    战场画布 — 黄铜舷窗
    ═══════════════════════════════════════════════════ */
@@ -1650,8 +1714,8 @@ button.toggle-active {
   color: var(--ink);
 }
 /* 背景幕(渐变 + 木纹 + 星空 canvas)始终在场;书页/页眉/页脚等内容随 visible 淡入 */
-.cs-screen > :not(.cs-bg-canvas) { opacity: 0; transition: opacity 0.45s ease; }
-.cs-screen.visible > :not(.cs-bg-canvas) { opacity: 1; }
+.cs-screen > :not(.cs-bg-canvas):not(.fluid-reveal-canvas):not(.fluid-pointer-ring) { opacity: 0; transition: opacity 0.45s ease; }
+.cs-screen.visible > :not(.cs-bg-canvas):not(.fluid-reveal-canvas):not(.fluid-pointer-ring) { opacity: 1; }
 .cs-screen.leaving { opacity: 0; transform: scale(1.05); pointer-events: none; }
 
 .cs-bg-canvas {
@@ -3083,6 +3147,36 @@ button.cs-mode-link { appearance: none; -webkit-appearance: none; background: no
 }
 .mmenu-head { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
 .mmenu-list { gap: 9px; }
+
+.route-fluid-backdrop {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.cs-screen.route-fluid-backdrop {
+  position: fixed;
+  inset: 0;
+}
+.route-fluid-backdrop .fluid-reveal-canvas {
+  z-index: 1;
+  pointer-events: none;
+}
+.route-fluid-backdrop > :not(.fluid-reveal-canvas):not(.fluid-pointer-ring):not(.page-stars):not(.ts-bg):not(.page-bg):not(.ts-vignette):not(.cs-bg-canvas) {
+  position: relative;
+  z-index: 2;
+}
+.route-fluid-backdrop .page-stars,
+.route-fluid-backdrop .ts-bg,
+.route-fluid-backdrop .page-bg,
+.route-fluid-backdrop .cs-bg-canvas {
+  z-index: 0;
+}
+.route-fluid-backdrop.route-fluid-no-ring .fluid-pointer-ring {
+  display: none;
+}
+.battle-shell.route-fluid-backdrop .fluid-reveal-canvas {
+  opacity: 0.72;
+}
 .mmenu-foot { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 7px; font-family: var(--font-cn); font-size: 0.7rem; letter-spacing: 0.12em; color: var(--text-muted); }
 .mmenu-foot .ts-foot-actions { gap: 16px; }
 .mmenu .ts-item {

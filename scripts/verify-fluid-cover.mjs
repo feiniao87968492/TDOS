@@ -33,19 +33,21 @@ assert(
 );
 
 const menu = read("src/menu.js");
+const routeBackdrop = read("src/effects/fluid-reveal/routeBackdrop.js");
 assert(
-  menu.includes('import("./effects/fluid-reveal/FluidRevealBackground.js")'),
-  "Main menu must dynamically import the accepted fluid reveal background module",
+  routeBackdrop.includes('import("./FluidRevealBackground.js")'),
+  "Shared route fluid helper must dynamically import the accepted fluid reveal background module",
 );
 assert(
-  menu.includes("assets/fluid-reveal/") &&
-    menu.includes("A1.jpeg") &&
-    menu.includes("B.png"),
-  "Main menu must wire the accepted cover still image and reveal image assets",
+  routeBackdrop.includes("assets/fluid-reveal/") &&
+    routeBackdrop.includes("A1.jpeg") &&
+    routeBackdrop.includes("B.png"),
+  "Shared route fluid helper must wire the accepted cover still image and reveal image assets",
 );
 assert(
-  menu.includes("createFluidRevealBackground(FLUID_COVER_OPTIONS)"),
-  "Main menu must create the fluid cover with cover-specific options",
+  menu.includes("mountRouteFluidBackdrop(stage") &&
+    menu.includes('activeClass: "ts-fluid-cover"'),
+  "Main menu must mount the fluid cover through the shared route fluid helper",
 );
 for (const token of [
   "maxFps: 24",
@@ -58,12 +60,12 @@ for (const token of [
   "pressureIterations: 3",
   "dprCap: 1",
 ]) {
-  assert(menu.includes(token), `Fluid cover options must include expected production setting: ${token}`);
+  assert(routeBackdrop.includes(token), `Fluid cover options must include expected production setting: ${token}`);
 }
 assert(
-  menu.includes("fluidCover.mount(stage)") &&
-    menu.includes("fluidCover.setTextures(FLUID_COVER_MAIN_IMAGE_URL, FLUID_COVER_IMAGE_URL)"),
-  "Main menu must mount the fluid effect into the title stage and set both textures",
+  routeBackdrop.includes("effect.mount(target)") &&
+    routeBackdrop.includes("effect.setTextures("),
+  "Shared route fluid helper must mount the fluid effect into the target and set both textures",
 );
 assert(
   menu.includes("const starfieldAc = new AbortController()") &&
@@ -72,7 +74,7 @@ assert(
   "Main menu must stop the starfield fallback after the fluid cover mounts",
 );
 assert(
-  menu.includes("fluidCover?.destroy()") && menu.includes("ac.abort()"),
+  menu.includes("fluidCover.destroy()") && menu.includes("ac.abort()"),
   "Main menu teardown must destroy the fluid effect and abort existing listeners",
 );
 assert(

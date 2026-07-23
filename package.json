@@ -11,9 +11,15 @@
     "test:server-bind": "node scripts/verify-server-bind-host.mjs",
     "test:fluid-cover": "node scripts/verify-fluid-cover.mjs",
     "test:fluid-reveal": "node scripts/verify-fluid-reveal.mjs",
+    "test:route-fluid": "node scripts/verify-route-fluid.mjs",
     "test:static-range": "node scripts/verify-static-range.mjs",
     "test:deploy-script": "node scripts/verify-deploy-script.mjs",
-    "test:core": "node scripts/verify-core.mjs"
+    "test:core": "node scripts/verify-core.mjs",
+    "test:2v2-core": "node scripts/verify-2v2-core.mjs",
+    "test:2v2-server": "node scripts/verify-2v2-server.mjs",
+    "test:2v2-client": "node scripts/verify-2v2-client.mjs",
+    "test:2v2-comm": "node scripts/verify-2v2-comm.mjs",
+    "test:2v2-reconnect": "node scripts/verify-2v2-reconnect.mjs"
   },
   "dependencies": {
     "three": "^0.185.1",

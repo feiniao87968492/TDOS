@@ -8,6 +8,7 @@ import { getFaction } from "./profile.js";
 import { startStarfield } from "./starfield.js";
 import { isMobile } from "./mobile.js";
 import { bindLanguageSelector, languageSelectorHTML, t } from "./i18n.js";
+import { mountRouteFluidBackdrop } from "./effects/fluid-reveal/routeBackdrop.js";
 
 const ITEMS = [
   { href: "/play", no: "I", label: "单人实战", sub: "挑选舰队，迎击 AI 舰群" },
@@ -20,28 +21,6 @@ const ITEMS = [
 const GITHUB_URL = "https://github.com/Haruhi-Labs/TDOS";
 const GROUP_URL = "https://qm.qq.com/q/zg5Bl5Ugwg";
 const VERSION_LABEL = "公测版 v0.1";
-const FLUID_COVER_ASSET_BASE = `${import.meta.env.BASE_URL}assets/fluid-reveal/`;
-const FLUID_COVER_MAIN_IMAGE_URL = `${FLUID_COVER_ASSET_BASE}A1.jpeg`;
-const FLUID_COVER_IMAGE_URL = `${FLUID_COVER_ASSET_BASE}B.png`;
-const FLUID_COVER_OPTIONS = {
-  maxFps: 24,
-  simulationResolution: 112,
-  particleCount: 72,
-  cursorRing: true,
-  pointerRadius: 0.91,
-  splatForce: 0.91,
-  clickRadiusMultiplier: 1.08,
-  clickSplatForce: 2.05,
-  velocityDissipation: 0.986,
-  densityDissipation: 0.95,
-  curlStrength: 0.34,
-  distortionStrength: 0.032,
-  revealStrength: 0.88,
-  backgroundDarkness: 0.58,
-  particleOpacity: 0.46,
-  pressureIterations: 3,
-  dprCap: 1,
-};
 
 // 首页 GitHub 链接(内嵌 Octocat 标记,fill 跟随 currentColor 以适配主题色)
 function githubLinkHTML() {
@@ -143,26 +122,11 @@ export function mount(root, ctx) {
   const starfieldAc = new AbortController();
   startStarfield(bg, starfieldAc.signal);
 
-  let fluidCover = null;
-  let fluidCoverCancelled = false;
-  async function loadFluidCover() {
-    if (!stage) return;
-    try {
-      const { createFluidRevealBackground } = await import("./effects/fluid-reveal/FluidRevealBackground.js");
-      if (signal.aborted || fluidCoverCancelled) return;
-      fluidCover = createFluidRevealBackground(FLUID_COVER_OPTIONS);
-      stage.classList.add("ts-fluid-cover");
-      fluidCover.mount(stage);
-      fluidCover.setTextures(FLUID_COVER_MAIN_IMAGE_URL, FLUID_COVER_IMAGE_URL);
-      starfieldAc.abort();
-    } catch (error) {
-      stage.classList.remove("ts-fluid-cover");
-      fluidCover?.destroy();
-      fluidCover = null;
-      console.warn("Fluid cover unavailable; using starfield fallback.", error);
-    }
-  }
-  loadFluidCover();
+  const fluidCover = mountRouteFluidBackdrop(stage, {
+    activeClass: "ts-fluid-cover",
+    logLabel: "Fluid cover",
+    onReady: () => starfieldAc.abort(),
+  });
 
   const items = Array.from(root.querySelectorAll(".ts-item"));
 
@@ -200,9 +164,8 @@ export function mount(root, ctx) {
   });
 
   return () => {
-    fluidCoverCancelled = true;
     starfieldAc.abort();
-    fluidCover?.destroy();
+    fluidCover.destroy();
     ac.abort();
   };
 }

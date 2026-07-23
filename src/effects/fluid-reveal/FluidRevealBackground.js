@@ -113,7 +113,7 @@ export function createFluidRevealBackground(options = {}) {
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.pointerEvents = "none";
-    canvas.style.zIndex = "1";
+    canvas.style.zIndex = String(config.canvasZIndex ?? 1);
     canvas.setAttribute("aria-hidden", "true");
     container.prepend(canvas);
 

@@ -41,8 +41,14 @@ if (-not $SkipVerify) {
   Run-Native "npm run test:static-range" "npm" @("run", "test:static-range")
   Run-Native "npm run test:fluid-cover" "npm" @("run", "test:fluid-cover")
   Run-Native "npm run test:fluid-reveal" "npm" @("run", "test:fluid-reveal")
+  Run-Native "npm run test:route-fluid" "npm" @("run", "test:route-fluid")
   Run-Native "npm run test:server-bind" "npm" @("run", "test:server-bind")
   Run-Native "npm run test:core" "npm" @("run", "test:core")
+  Run-Native "npm run test:2v2-core" "npm" @("run", "test:2v2-core")
+  Run-Native "npm run test:2v2-server" "npm" @("run", "test:2v2-server")
+  Run-Native "npm run test:2v2-client" "npm" @("run", "test:2v2-client")
+  Run-Native "npm run test:2v2-comm" "npm" @("run", "test:2v2-comm")
+  Run-Native "npm run test:2v2-reconnect" "npm" @("run", "test:2v2-reconnect")
 }
 
 if (-not $SkipAudit) {
