@@ -40,6 +40,7 @@ for (const token of [
   "npm run test:2v2-client",
   "npm run test:2v2-comm",
   "npm run test:2v2-reconnect",
+  "npm run test:2v2-browser",
   "npm audit --omit=dev",
   "npm run build",
   "scp.exe",

@@ -49,6 +49,7 @@ if (-not $SkipVerify) {
   Run-Native "npm run test:2v2-client" "npm" @("run", "test:2v2-client")
   Run-Native "npm run test:2v2-comm" "npm" @("run", "test:2v2-comm")
   Run-Native "npm run test:2v2-reconnect" "npm" @("run", "test:2v2-reconnect")
+  Run-Native "npm run test:2v2-browser" "npm" @("run", "test:2v2-browser")
 }
 
 if (-not $SkipAudit) {
